@@ -37,26 +37,31 @@ end
 
 module Board
     def win?(guess, word)
-        if guess.to_s == word.to_s
-            return true
-        else return false
-        end
+        guess == word
+    end
+
+    def display_board(guesses, guess, word)
+        puts "Guesses: #{guesses.join(" ")}"
+        puts "The word: #{word}"
     end
 end
 
+
 class Game
-include Player
-include Computer
-include Board
-attr_accessor :word, :guesses, :this_guess
+    include Player
+    include Computer
+    include Board
+    attr_accessor :word, :guesses, :this_guess, :turn, :winner
     def initialize
         @word = word
         @this_guess = ""
         @guesses = []
+        @turn = 1
+        @winner = false
     end
     def intro
         puts "Welcome to HangMan!"
-        puts "Try to guess the randomly selected word within 8 tries."
+        puts "Try to guess the randomly selected word within 12 tries."
         puts ""
         puts "Commands:"
         puts ":s - save game"
@@ -68,11 +73,20 @@ attr_accessor :word, :guesses, :this_guess
     def play_game
         words = find_word
         word = words.sample
-        puts word
-        until win?(@this_guess, @word) == true
-            this_guess = make_guess(guesses)
-            guesses.push(this_guess)
-            puts "Guesses: #{guesses.join(" ")}"
+        until @turn == 13
+            if win?(this_guess.downcase, word) == false
+                puts ""
+                puts "Turn #{turn}:"
+                this_guess = make_guess(guesses)
+                guesses.push(this_guess.downcase)
+                display_board(guesses, this_guess.downcase, word)
+                puts win?(this_guess.downcase, word)
+                @turn += 1
+                if win?(this_guess.downcase, word) == true
+                    puts "You win!"
+                    @turn = 13
+                end
+            end
         end
     end
 end
